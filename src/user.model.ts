@@ -5,6 +5,7 @@ export type Roles = Array<Role>;
 
 export enum Role {
   user,
+  writer,
 }
 
 @Schema({ timestamps: true })

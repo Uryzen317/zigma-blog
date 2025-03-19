@@ -4,15 +4,18 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { AppService } from './app.service';
-import { CreatePostDTO, LoginDTO, SignUpDTO } from './app.DTO';
+import { CommentDTO, CreatePostDTO, LoginDTO, SignUpDTO } from './app.DTO';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Request, Response } from 'express';
+import { query, Request, Response } from 'express';
+import { cookieUser } from './decorators/cookie-user.decorator';
+import { CookieUser } from './interfaces/CookieUser.type';
 
 @Controller()
 export class AppController {
@@ -48,6 +51,24 @@ export class AppController {
   @Get('get-post/:id')
   getPost(@Param('id') postID: string) {
     return this.appService.getPost(postID);
+  }
+
+  // comment
+  @Post('comment')
+  comment(@cookieUser() cUser: CookieUser, @Body() commentDTO: CommentDTO) {
+    return this.appService.comment(cUser, commentDTO);
+  }
+
+  // get home
+  @Get('get-home')
+  getHome() {
+    return this.appService.getHome();
+  }
+
+  // search
+  @Get('search')
+  search(@Query() queries) {
+    return this.appService.search(queries['query'] || '');
   }
 
   @Get()

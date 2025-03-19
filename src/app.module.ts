@@ -9,6 +9,7 @@ import { extname } from 'path';
 import { v4 } from 'uuid';
 import { User, UserDocument } from './user.model';
 import { ConfigModule } from '@nestjs/config';
+import { Comment, CommentDocument } from './comment.model';
 
 // requirements
 require('dotenv').config();
@@ -26,6 +27,7 @@ const DB_NAME = process.env.DB_NAME;
     MongooseModule.forFeature([
       { name: Post.name, schema: PostDocument },
       { name: User.name, schema: UserDocument },
+      { name: Comment.name, schema: CommentDocument },
     ]),
     MulterModule.register({
       storage: diskStorage({

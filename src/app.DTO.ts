@@ -39,3 +39,13 @@ export class LoginDTO {
   @MaxLength(64)
   password: string;
 }
+
+export class CommentDTO {
+  @IsString()
+  @IsNotEmpty()
+  postID: string;
+
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+}

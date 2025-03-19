@@ -18,6 +18,9 @@ export class Post extends Document {
 
   @Prop({ ref: 'User', type: SchemaTypes.ObjectId })
   user: User;
+
+  @Prop({ default: 0 })
+  views: 0;
 }
 
 export const PostDocument = SchemaFactory.createForClass(Post);
