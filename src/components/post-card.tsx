@@ -1,22 +1,29 @@
+import { getReadTime, Post } from "@/app/post/[id]/page";
 import { Button } from "./ui/button";
+import { getCreationTime } from "./comment";
+import Link from "next/link";
 
-export default function PostCard() {
+type PostCartProps = {
+  post: Post;
+};
+
+export default function PostCard({ post }: PostCartProps) {
   return (
     <div className="border flex h-36 rounded-md overflow-hidden shadow-md grow bg-card">
       {/* details */}
       <div className="grow p-4 flex flex-col h-full justify-between">
         {/* title */}
         <p className="text-justify font-bold line-clamp-1" dir="rtl">
-          تست تست تست تست تست تست تست
+          {post.title}
         </p>
 
         {/* author | read time */}
         <div className="flex gap-2 justify-end items-center">
           <p className=" opacity-50 text-xs shrink-0" dir="rtl">
-            2 دقیقه برای مطالعه
+            {getReadTime(post.description)} دقیقه برای مطالعه
           </p>
           <span className="opacity-25 text-xs">|</span>
-          <p className="text-sm opacity-75 shrink-0">تست تست تست</p>
+          <p className="text-sm opacity-75 shrink-0">{post?.user?.username}</p>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             height="24px"
@@ -31,13 +38,15 @@ export default function PostCard() {
 
         {/* controllers | statistics */}
         <div className="flex justify-between">
-          <Button style={{ minWidth: "120px" }}>
-            <span className="">مطالعه</span>
-          </Button>
+          <Link href={"/post/" + post._id}>
+            <Button style={{ minWidth: "120px" }}>
+              <span className="">مطالعه</span>
+            </Button>
+          </Link>
 
           <div className="flex gap-2 items-center shrink-0">
             <div className="flex gap-1 items-center">
-              <span className="text-xs opacity-50">100</span>
+              <span className="text-xs opacity-50">{post.views}</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 height="24px"
@@ -50,24 +59,10 @@ export default function PostCard() {
               </svg>
             </div>
 
-            <div className="flex gap-1 items-center">
-              <span className="text-xs opacity-50">10</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                height="24px"
-                viewBox="0 -960 960 960"
-                width="24px"
-                fill="#000000"
-                className="w-4 h-4 opacity-50 fill-foreground"
-              >
-                <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
-              </svg>
-            </div>
-
             <span className="opacity-25 text-xs">|</span>
 
             <p dir="rtl" className="text-xs opacity-75">
-              2 روز پیش
+              {getCreationTime(post.createdAt)}
             </p>
           </div>
         </div>

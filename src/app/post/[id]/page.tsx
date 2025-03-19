@@ -1,29 +1,69 @@
+import Comment from "@/components/comment";
+import CommentYourself from "@/components/comment-yourself";
 import DividerPrimary from "@/components/divider-primary";
 import PostCard from "@/components/post-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import * as moment from "jalali-moment";
+import { notFound } from "next/navigation";
 
-export default async function Post({ params }: { params: { id: string } }) {
-  const { id } = await params;
+const AvgReadSpeed = 200; // words per minute
+export function getReadTime(description: string): number {
+  return Math.ceil(description.split(" ").length / AvgReadSpeed);
+}
 
-  let res = await fetch("http://localhost:5000/get-post/" + id);
-  let post: {
+export type Post = {
+  _id: string;
+  picture: string;
+  title: string;
+  description: string;
+  tags: string;
+  views: number;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+  user: {
     _id: string;
-    picture: string;
-    title: string;
-    description: string;
-    tags: string;
-    createdAt: string;
-    updatedAt: string;
-    __v: number;
+    username: string;
+    roles: Array<number>;
+  };
+  comments: Array<{
+    _id: string;
+    post: string;
     user: {
       _id: string;
       username: string;
       roles: Array<number>;
     };
-  } = await res.json();
+    description: string;
+    likes: number;
+    dislikes: number;
+    status: number;
+    createdAt: string;
+    updatedAt: string;
+    __v: number;
+  }>;
+};
+
+export default async function Post({ params }: { params: { id: string } }) {
+  const { id } = await params;
+
+  let res = await fetch("http://localhost:5000/get-post/" + id);
+
+  // not fount
+  if (!res.ok) {
+    switch (res.status) {
+      case 404: {
+        return notFound();
+        break;
+      }
+      default: {
+        return <>خطایی رخ داد</>;
+      }
+    }
+  }
+
+  let post: Post = await res.json();
 
   return (
     <>
@@ -40,9 +80,11 @@ export default async function Post({ params }: { params: { id: string } }) {
                 {post.user.username}
               </p>
               <div className="flex gap-2">
-                <Badge variant={"secondary"}>نویسنده</Badge>
-                <Badge variant={"secondary"}>ناظر</Badge>
-                <Badge variant={"secondary"}>مدیر</Badge>
+                {post.user.roles.includes(1) ? (
+                  <Badge variant={"secondary"}>نویسنده</Badge>
+                ) : null}
+                {/* <Badge variant={"secondary"}>ناظر</Badge> */}
+                {/* <Badge variant={"secondary"}>مدیر</Badge> */}
               </div>
             </div>
 
@@ -62,7 +104,7 @@ export default async function Post({ params }: { params: { id: string } }) {
           <div className="flex flex-col items-end gap-2 bg-zinc-900 p-2 px-4 rounded-md">
             <div className="flex gap-2 justify-end items-center">
               <p className="opacity-75" dir="rtl">
-                2 دقیقه
+                {getReadTime(post.description)} دقیقه
               </p>
               <p className="opacity-50 text-sm" dir="rtl">
                 مدت زمان تقریبی مطالعه :
@@ -71,7 +113,7 @@ export default async function Post({ params }: { params: { id: string } }) {
 
             <div className="flex gap-2 items-center  w-full">
               <div className="flex gap-1 items-center">
-                <span className="opacity-50 text-sm">100</span>
+                <span className="opacity-50 text-sm">{post.views}</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   height="24px"
@@ -84,7 +126,7 @@ export default async function Post({ params }: { params: { id: string } }) {
                 </svg>
               </div>
 
-              <div className="flex gap-1 items-center">
+              {/* <div className="flex gap-1 items-center">
                 <span className="opacity-50 text-sm">10</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -96,7 +138,7 @@ export default async function Post({ params }: { params: { id: string } }) {
                 >
                   <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
                 </svg>
-              </div>
+              </div> */}
 
               <span className="opacity-25 text-xs text-center grow border-t border-t-zinc-200"></span>
 
@@ -105,9 +147,12 @@ export default async function Post({ params }: { params: { id: string } }) {
                   86_400_000 >=
                 1 ? (
                   <span>
-                    {(new Date().getTime() -
-                      new Date(post.createdAt).getTime()) /
-                      86_400_000}
+                    {Math.round(
+                      (new Date().getTime() -
+                        new Date(post.createdAt).getTime()) /
+                        86_400_000
+                    )}{" "}
+                    روز پیش
                   </span>
                 ) : (
                   <span>به تازگی</span>
@@ -139,11 +184,11 @@ export default async function Post({ params }: { params: { id: string } }) {
       </section>
 
       {/* text */}
-      <section>
-        <p className="text-justify p-4" dir="rtl">
-          {post.description}
-        </p>
-      </section>
+      <section
+        className="text-justify p-4"
+        dir="rtl"
+        dangerouslySetInnerHTML={{ __html: post.description }}
+      ></section>
 
       {/* recommended */}
       <section className="mt-2">
@@ -152,7 +197,8 @@ export default async function Post({ params }: { params: { id: string } }) {
           {Array(4)
             .fill(true)
             .map((x) => (
-              <PostCard />
+              // <PostCard />
+              <></>
             ))}
         </div>
       </section>
@@ -163,116 +209,19 @@ export default async function Post({ params }: { params: { id: string } }) {
         <div className="flex gap-4 -translate-y-7">
           {/* comments */}
           <div className="flex flex-col gap-4 grow pt-4 pl-4">
-            {Array(10)
-              .fill(true)
-              .map((x) => (
-                <div className="card bg-base-200 min-h-24 border border-base-300 shadow-sm p-4 pb-2">
-                  <div className="flex justify-between items-start">
-                    <div className="flex gap-2 items-center sm:justify-start justify-center">
-                      <span dir="rtl" className="text-sm opacity-75">
-                        {" "}
-                        ۲ ساعت پیش{" "}
-                      </span>
-
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="24px"
-                        viewBox="0 -960 960 960"
-                        width="24px"
-                        fill="#000000"
-                        className="opacity-50 w-5 h-5 fill-foreground "
-                      >
-                        <path d="m612-292 56-56-148-148v-184h-80v216l172 172ZM480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-400Zm0 320q133 0 226.5-93.5T800-480q0-133-93.5-226.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160Z" />
-                      </svg>
-                    </div>
-
-                    <div className="flex gap-2 items-start">
-                      <div className="flex flex-col items-end gap-1">
-                        <p className="text-sm">نام کاربری</p>
-                        <Badge className="" variant={"outline"}>
-                          ناظر
-                        </Badge>
-                      </div>
-
-                      <div className="avatar">
-                        <div className="w-12 rounded-full">
-                          <img src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="divider p-0 m-0 my-2 opacity-50"></div>
-                  <p className="text-justify text-sm leading-7" dir="rtl">
-                    لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و
-                    با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه
-                    و مجله در ستون و سطرآنچنان که لازم است، و برای شرایط فعلی
-                    تکنولوژی مورد نیاز، و کاربردهای متنوع با هدف بهبود ابزارهای
-                    کاربردی می باشد، کتابهای زیادی در شصت و سه درصد گذشته حال و
-                    آینده، شناخت فراوان جامعه و متخصصان را می طلبد، تا با نرم
-                    افزارها شناخت بیشتری را برای طراحان رایانه ای علی الخصوص
-                    طراحان خلاقی، و فرهنگ پیشرو در زبان فارسی ایجاد کرد، در این
-                    صورت می توان امید داشت که تمام و دشواری موجود در ارائه
-                    راهکارها، و شرایط سخت تایپ به پایان رسد و زمان مورد نیاز
-                    شامل حروفچینی دستاوردهای اصلی، و جوابگوی سوالات پیوسته اهل
-                    دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.
-                  </p>
-
-                  <div className="flex gap-4 items-center border-t mt-2 pt-2 border-zinc-900">
-                    <div className="flex gap-1 badge-error shadow-sm items-center">
-                      <span className="opacity-50">-2</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="24px"
-                        viewBox="0 -960 960 960"
-                        width="24px"
-                        fill="#000000"
-                        className="fill-foreground w-4 h-4 opacity-50"
-                      >
-                        <path d="M240-840h440v520L400-40l-50-50q-7-7-11.5-19t-4.5-23v-14l44-174H120q-32 0-56-24t-24-56v-80q0-7 2-15t4-15l120-282q9-20 30-34t44-14Zm360 80H240L120-480v80h360l-54 220 174-174v-406Zm0 406v-406 406Zm80 34v-80h120v-360H680v-80h200v520H680Z" />
-                      </svg>
-                    </div>
-                    <div className="flex gap-1 badge-success shadow-sm items-center">
-                      <span className="opacity-50">+2</span>
-
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        height="24px"
-                        viewBox="0 -960 960 960"
-                        width="24px"
-                        fill="#000000"
-                        className="fill-foreground w-4 h-4 opacity-50"
-                      >
-                        <path d="M720-120H280v-520l280-280 50 50q7 7 11.5 19t4.5 23v14l-44 174h258q32 0 56 24t24 56v80q0 7-2 15t-4 15L794-168q-9 20-30 34t-44 14Zm-360-80h360l120-280v-80H480l54-220-174 174v406Zm0-406v406-406Zm-80-34v80H160v360h120v80H80v-520h200Z" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            {post.comments.map((comment) => (
+              <Comment
+                createdAt={comment.createdAt}
+                description={comment.description}
+                dislikes={comment.dislikes}
+                likes={comment.likes}
+                user={comment.user}
+              />
+            ))}
           </div>
 
           {/* comment yourself */}
-          <div className="sm:w-96 w-full bg-base-200 h-fit sm:sticky sm:top-20 p-4 flex flex-col gap-4 shrink-0 border-b border-l border-dashed">
-            <p className="text-center font-bold">
-              ! نظرتان را به اشتراک بگذارید
-            </p>
-
-            <Textarea
-              style={{ minHeight: "120px" }}
-              placeholder="نظر شما"
-              dir="rtl"
-            ></Textarea>
-            <label
-              className="text-xs text-justify opacity-50 leading-6"
-              dir="rtl"
-            >
-              <span className="text-red-500">*&nbsp;</span>
-              نظر شما پس از تایید و بررسی نمایش داده میشود؛ قوانین و مقررات را
-              رعایت کنید.
-            </label>
-
-            <Button variant={"outline"}>ثبت نظر</Button>
-          </div>
+          <CommentYourself postID={post._id} />
         </div>
       </section>
     </>

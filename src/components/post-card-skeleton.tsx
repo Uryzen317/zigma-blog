@@ -1,4 +1,3 @@
-import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
 
 export default function PostCardSkeleton() {

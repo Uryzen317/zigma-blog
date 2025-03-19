@@ -19,8 +19,8 @@ export default function Navbar() {
 
   return (
     <div className="w-80 shrink-0 h-fit sticky top-12 px-4 pt-2 border-dashed border-t">
-      {categories.map((category) => (
-        <div>
+      {categories.map((category, i) => (
+        <div key={i}>
           <div className="flex gap-2 items-center my-2">
             <div className="grow border-t "></div>
             <span className="text-sm opacity-75">{category.title}</span>
@@ -30,8 +30,9 @@ export default function Navbar() {
           <div className="border-r pr-1.5 mr-1">
             {Array(category.count)
               .fill(1)
-              .map(() => (
+              .map((_x, j) => (
                 <a
+                  key={j}
                   href="#"
                   className="flex gap-4 items-center hover:bg-foreground rounded-md p-2 duration-200 hover:text-background"
                 >
