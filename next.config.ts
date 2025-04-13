@@ -12,8 +12,8 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "darmannyar.com/",
-        port: "443",
+        hostname: "api.darmannyar.com",
+        port: "",
         pathname: "**",
       },
     ],

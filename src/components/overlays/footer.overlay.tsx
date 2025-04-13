@@ -40,7 +40,7 @@ export default function Footer() {
           <div className="flex gap-1 items-center">
             <span>Source code on</span>
             <Link
-              href="https://github.com/uryzen317"
+              href="https://github.com/uryzen317/zigma-blog"
               className="text-muted-foreground flex items-center gap-1"
             >
               <Github className="w-4 h-4" />

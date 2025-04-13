@@ -2,9 +2,9 @@ import { Skeleton } from "./ui/skeleton";
 
 export default function PostCardSkeleton() {
   return (
-    <div className="border flex h-36 rounded-md overflow-hidden shadow-md grow bg-card">
+    <div className="border flex flex-col-reverse sm:flex-row h-72 sm:h-36 rounded-md overflow-hidden shadow-md grow bg-card">
       {/* details */}
-      <div className="grow p-4 flex flex-col h-full justify-between">
+      <div className="grow p-4 flex flex-col h-36 sm:h-full justify-between">
         {/* title */}
         <Skeleton className="h-6 w-72 place-self-end"></Skeleton>
 
@@ -20,7 +20,7 @@ export default function PostCardSkeleton() {
       </div>
 
       {/* image */}
-      <Skeleton className="h-full aspect-video"></Skeleton>
+      <Skeleton className="h-36 sm:h-full aspect-video"></Skeleton>
     </div>
   );
 }
