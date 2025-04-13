@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -13,7 +15,14 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { AppService } from './app.service';
-import { CommentDTO, CreatePostDTO, LoginDTO, SignUpDTO } from './DTOs/app.DTO';
+import {
+  CommentDTO,
+  CreatePostDTO,
+  DemoteUserDTO,
+  LoginDTO,
+  PromoteUserDTO,
+  SignUpDTO,
+} from './DTOs/app.DTO';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { cookieUser } from './decorators/cookie-user.decorator';
@@ -57,6 +66,17 @@ export class AppController {
     return this.appService.login(loginDTO, res);
   }
 
+  // who am i
+  @Get('who-am-i')
+  @UseGuards(UserGuard)
+  @SetMetadata(RoleSybmol, Role.user)
+  whoAmI(
+    @cookieUser() cookieUser: CookieUser,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.appService.whoAmI(cookieUser, res);
+  }
+
   // get post
   @Get('get-post/:id')
   getPost(@Param('id') postID: string) {
@@ -90,6 +110,38 @@ export class AppController {
   @Get('cdn/:id')
   cdn(@Param('id') id: string, @Res() res: Response) {
     return this.appService.cdn(id, res);
+  }
+
+  // get list of users
+  @Get('get-users')
+  @UseGuards(UserGuard)
+  @SetMetadata(RoleSybmol, Role.admin)
+  getUsers() {
+    return this.appService.getUsers();
+  }
+
+  // promote user
+  @Patch('promote-user')
+  @UseGuards(UserGuard)
+  @SetMetadata(RoleSybmol, Role.admin)
+  promoteUser(@Body() promoteUserDTO: PromoteUserDTO) {
+    return this.appService.promoteUser(promoteUserDTO.userID);
+  }
+
+  // demote user
+  @Patch('demote-user')
+  @UseGuards(UserGuard)
+  @SetMetadata(RoleSybmol, Role.admin)
+  demoteUser(@Body() demoteUserDTO: DemoteUserDTO) {
+    return this.appService.demoteUser(demoteUserDTO.userID);
+  }
+
+  // delete user
+  @Delete('delete-user/:id')
+  @UseGuards(UserGuard)
+  @SetMetadata(RoleSybmol, Role.admin)
+  deleteUser(@Param('id') userID: string) {
+    return this.appService.deleteUser(userID);
   }
 
   @Get()

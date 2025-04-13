@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -97,7 +98,9 @@ export class AppService {
     );
 
     return {
-      success: true,
+      _id: user._id,
+      username: user.username,
+      roles: user.roles,
     };
   }
 
@@ -141,14 +144,49 @@ export class AppService {
     );
 
     return {
-      success: true,
+      _id: user._id,
+      username: user.username,
+      roles: user.roles,
+    };
+  }
+
+  // who am i
+  async whoAmI(cookieUser: CookieUser, res: Response) {
+    const user = await this.users.findOne(
+      { _id: cookieUser },
+      { username: true, roles: true },
+    );
+    if (!user) throw new ForbiddenException();
+
+    res.cookie(
+      'zigma-mainnet-auth',
+      JSON.stringify({
+        _id: user._id,
+        username: user.username,
+        roles: user.roles,
+      }),
+      {
+        expires: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        signed: true,
+      },
+    );
+
+    return {
+      _id: user._id,
+      username: user.username,
+      roles: user.roles,
     };
   }
 
   async getPost(postID: string) {
     if (!isValidObjectId(postID)) throw new NotFoundException();
 
-    let post: Post & { _id: any; comments?: Array<Comment> } = await this.posts
+    let post: Post & { _id: any; comments?: Array<Comment> } & {
+      suggestedPosts?: Post[];
+    } = await this.posts
       .findOneAndUpdate(
         { _id: postID },
         {
@@ -182,6 +220,37 @@ export class AppService {
         createdAt: 'desc',
       });
 
+    // get suggested posts
+    const targetTags = post.tags.split(' ');
+    let allTags: { _id: any; tags: string; score?: number }[] = await this.posts
+      .find({}, { tags: true })
+      .lean();
+
+    allTags = allTags
+      .map((doc) => {
+        doc.score =
+          doc.tags?.split(' ')?.filter((tag) => targetTags.includes(tag))
+            ?.length || 0;
+
+        return doc;
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 4);
+
+    post.suggestedPosts = await this.posts
+      .find({
+        _id: {
+          $in: allTags.map((doc) => doc._id),
+        },
+      })
+      .populate({
+        path: 'user',
+        select: {
+          username: true,
+          roles: true,
+        },
+      });
+
     return post;
   }
 
@@ -206,7 +275,10 @@ export class AppService {
   // get home
   async getHome() {
     // console.log(
-    //   await this.users.updateMany({}, { roles: [Role.user, Role.writer] }),
+    //   await this.users.updateMany(
+    //     { username: 'testtest' },
+    //     { roles: [Role.user, Role.writer, Role.admin, Role.founder] },
+    //   ),
     // );
 
     const comments = await this.comments.aggregate([
@@ -360,5 +432,53 @@ export class AppService {
           roles: true,
         },
       });
+  }
+
+  // get list of users
+  getUsers() {
+    return this.users.find(
+      {},
+      { username: true, roles: true, createdAt: true },
+    );
+  }
+
+  // promote user (to writer)
+  promoteUser(userID: string) {
+    return this.users.updateOne(
+      {
+        _id: userID,
+        roles: {
+          $nin: Role.writer,
+        },
+      },
+      {
+        $push: {
+          roles: Role.writer,
+        },
+      },
+    );
+  }
+
+  // demote user (to writer)
+  demoteUser(userID: string) {
+    return this.users.updateOne(
+      {
+        _id: userID,
+        roles: {
+          $in: Role.writer,
+          $nin: [Role.admin, Role.founder],
+        },
+      },
+      {
+        $pull: {
+          roles: Role.writer,
+        },
+      },
+    );
+  }
+
+  // delete user
+  deleteUser(userID: string) {
+    return this.users.deleteOne({ _id: userID });
   }
 }

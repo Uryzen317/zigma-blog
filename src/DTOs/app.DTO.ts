@@ -49,3 +49,15 @@ export class CommentDTO {
   @IsNotEmpty()
   description: string;
 }
+
+export class PromoteUserDTO {
+  @IsString()
+  @IsNotEmpty()
+  userID: string;
+}
+
+export class DemoteUserDTO {
+  @IsString()
+  @IsNotEmpty()
+  userID: string;
+}
