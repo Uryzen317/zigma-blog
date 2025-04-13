@@ -1,5 +1,5 @@
 import { ObjectId } from 'mongoose';
-import { Roles } from 'src/user.model';
+import { Roles } from 'src/models/user.model';
 
 export type CookieUser = {
   _id: ObjectId;

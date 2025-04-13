@@ -7,23 +7,31 @@ import {
   Query,
   Req,
   Res,
+  SetMetadata,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AppService } from './app.service';
-import { CommentDTO, CreatePostDTO, LoginDTO, SignUpDTO } from './app.DTO';
+import { CommentDTO, CreatePostDTO, LoginDTO, SignUpDTO } from './DTOs/app.DTO';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { query, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { cookieUser } from './decorators/cookie-user.decorator';
 import { CookieUser } from './interfaces/CookieUser.type';
+import { UserGuard } from './guards/user.guard';
+import RoleSybmol from './symbols/role.symbol';
+import { Role } from './models/user.model';
+import { AuthLimitInterceptor } from './interceptors/auth-limit.interceptor';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   // create post
-  @UseInterceptors(FileInterceptor('picture'))
   @Post('create-post')
+  @UseGuards(UserGuard)
+  @SetMetadata(RoleSybmol, Role.writer)
+  @UseInterceptors(FileInterceptor('picture'))
   createPost(
     @Body() createPostDTO: CreatePostDTO,
     @UploadedFile() picture: Express.Multer.File,
@@ -34,6 +42,7 @@ export class AppController {
 
   // signup
   @Post('signup')
+  @UseInterceptors(AuthLimitInterceptor)
   signup(
     @Body() signupDTO: SignUpDTO,
     @Res({ passthrough: true }) res: Response,
@@ -43,6 +52,7 @@ export class AppController {
 
   // login
   @Post('login')
+  @UseInterceptors(AuthLimitInterceptor)
   login(@Body() loginDTO: LoginDTO, @Res({ passthrough: true }) res: Response) {
     return this.appService.login(loginDTO, res);
   }
@@ -55,8 +65,13 @@ export class AppController {
 
   // comment
   @Post('comment')
-  comment(@cookieUser() cUser: CookieUser, @Body() commentDTO: CommentDTO) {
-    return this.appService.comment(cUser, commentDTO);
+  @UseGuards(UserGuard)
+  @SetMetadata(RoleSybmol, Role.user)
+  comment(
+    @cookieUser() cookieUser: CookieUser,
+    @Body() commentDTO: CommentDTO,
+  ) {
+    return this.appService.comment(cookieUser, commentDTO);
   }
 
   // get home
@@ -69,6 +84,12 @@ export class AppController {
   @Get('search')
   search(@Query() queries) {
     return this.appService.search(queries['query'] || '');
+  }
+
+  // cdn
+  @Get('cdn/:id')
+  cdn(@Param('id') id: string, @Res() res: Response) {
+    return this.appService.cdn(id, res);
   }
 
   @Get()

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, SchemaTypes } from 'mongoose';
-import { Post } from './post.model';
-import { User } from './user.model';
+import { Post } from '../models/post.model';
+import { User } from '../models/user.model';
 
 export enum CommentStatus {
   pending,

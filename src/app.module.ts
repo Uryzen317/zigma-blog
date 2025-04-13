@@ -2,14 +2,17 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Post, PostDocument } from './post.model';
+import { Post, PostDocument } from './models/post.model';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 } from 'uuid';
-import { User, UserDocument } from './user.model';
+import { User, UserDocument } from './models/user.model';
 import { ConfigModule } from '@nestjs/config';
-import { Comment, CommentDocument } from './comment.model';
+import { Comment, CommentDocument } from './models/comment.model';
+import { RedisModule } from './redis/redis.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AuthLimitInterceptor } from './interceptors/auth-limit.interceptor';
 
 // requirements
 require('dotenv').config();
@@ -22,7 +25,7 @@ const DB_NAME = process.env.DB_NAME;
 @Module({
   imports: [
     MongooseModule.forRoot(
-      `mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}`,
+      `mongodb://${DB_USERNAME && DB_PASSWORD ? DB_USERNAME + ':' + DB_PASSWORD + '@' : ''}${DB_HOST}:${DB_PORT}/${DB_NAME}`,
     ),
     MongooseModule.forFeature([
       { name: Post.name, schema: PostDocument },
@@ -45,8 +48,10 @@ const DB_NAME = process.env.DB_NAME;
       isGlobal: true,
       cache: true,
     }),
+    ScheduleModule.forRoot(),
+    RedisModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AuthLimitInterceptor],
 })
 export class AppModule {}

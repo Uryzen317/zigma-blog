@@ -4,15 +4,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post } from './post.model';
+import { Post } from './models/post.model';
 import { isValidObjectId, Model } from 'mongoose';
-import { CommentDTO, CreatePostDTO, LoginDTO, SignUpDTO } from './app.DTO';
-import { Role, User } from './user.model';
+import { CommentDTO, CreatePostDTO, LoginDTO, SignUpDTO } from './DTOs/app.DTO';
+import { Role, User } from './models/user.model';
 import { randomBytes } from 'crypto';
 import { promisify } from 'util';
 import { Request, Response } from 'express';
 import { CookieUser } from './interfaces/CookieUser.type';
-import { Comment, CommentStatus } from './comment.model';
+import { Comment, CommentStatus } from './models/comment.model';
+import { join } from 'path';
+import { Cron, CronExpression } from '@nestjs/schedule';
 const argon2 = require('argon2');
 const randomBytesPromise = promisify(randomBytes);
 
@@ -61,12 +63,13 @@ export class AppService {
     if (await this.users.findOne({ username }, { _id: true }))
       throw new BadRequestException('نام کاربری قبلا ثبت شده است');
 
+    let user: User;
     try {
       const salt = await randomBytesPromise(8);
       const hash = await argon2.hash(password, {
         secret: salt,
       });
-      await this.users.create({
+      user = await this.users.create({
         username,
         password: hash,
         salt: salt.toString('hex'),
@@ -77,7 +80,21 @@ export class AppService {
     }
 
     // set the cookie
-    res.cookie('auth', 'auth');
+    res.cookie(
+      'zigma-mainnet-auth',
+      JSON.stringify({
+        _id: user._id,
+        username: user.username,
+        roles: user.roles,
+      }),
+      {
+        expires: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        signed: true,
+      },
+    );
 
     return {
       success: true,
@@ -129,14 +146,6 @@ export class AppService {
   }
 
   async getPost(postID: string) {
-    // console.log(
-    //   await this.posts
-    //     .find({}, { _id: true })
-    //     .transform((docs) =>
-    //       docs.map((doc) => 'http://localhost:3000/post/' + doc._id),
-    //     ),
-    // );
-
     if (!isValidObjectId(postID)) throw new NotFoundException();
 
     let post: Post & { _id: any; comments?: Array<Comment> } = await this.posts
@@ -196,6 +205,10 @@ export class AppService {
 
   // get home
   async getHome() {
+    // console.log(
+    //   await this.users.updateMany({}, { roles: [Role.user, Role.writer] }),
+    // );
+
     const comments = await this.comments.aggregate([
       {
         $group: {
@@ -321,6 +334,11 @@ export class AppService {
       mostPopular: sections[2],
       oldest: sections[3],
     };
+  }
+
+  // cdn
+  async cdn(fileID: string, res: Response) {
+    return res.sendFile(join(__dirname, '..', '..', 'files', fileID));
   }
 
   // search
