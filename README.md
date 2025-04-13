@@ -37,6 +37,20 @@ npm run start:dev
 
 To run the backend locally:
 
+1. **Copy the `.env.example` file** to a new `.env` file:
+
+   ```bash
+   cp .env.example .env
+
+   ```
+
+2. **Update the `.env` file** with the appropriate environment variables for your local setup.
+
+3. Then, run the server:
+
+> ⚠️ **Note for production (CI/CD):**  
+> Ensure that the `.env` file is properly set up on your production environment with the necessary credentials and variables.
+
 ```bash
 npm run start:dev
 ```
