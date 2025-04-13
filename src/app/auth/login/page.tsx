@@ -10,6 +10,7 @@ import uSonner from "@/lib/uSonner.lib";
 import { CardDescription } from "@/components/ui/card";
 import { env } from "@/lib/public-env";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/overlays/header.overlay";
 
 const useLogin = create<UseLogin>((set) => ({
   isLoading: false,
@@ -50,6 +51,8 @@ export default function Login() {
     setInputError,
   } = useLogin();
 
+  const { setUser } = useAuth();
+
   const router = useRouter();
 
   const checkRegex = /^[A-Za-z0-9_]{8,64}$/;
@@ -81,6 +84,10 @@ export default function Login() {
       credentials: "include",
     }).then(async (value) => {
       if (value.ok) {
+        const user = await value.json();
+        window.localStorage.setItem("local-user", JSON.stringify(user));
+        setUser(user);
+
         setTimeout(() => {
           router.push("/");
         }, 3000);

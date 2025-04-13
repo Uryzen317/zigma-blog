@@ -4,6 +4,8 @@ import Header from "@/components/overlays/header.overlay";
 import Breakcrumb from "@/components/overlays/breakcrumb.overlay";
 import Footer from "@/components/overlays/footer.overlay";
 import { Toaster } from "@/components/ui/sonner";
+import { create } from "zustand";
+import { useEffect, useState } from "react";
 require("dotenv").config();
 
 export const metadata: Metadata = {

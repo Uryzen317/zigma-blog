@@ -1,3 +1,4 @@
+import { Role } from "@/lib/types/role.type";
 import { Badge } from "./ui/badge";
 
 type CommentProps = {
@@ -51,11 +52,23 @@ export default function Comment({
         <div className="flex gap-2 items-start">
           <div className="flex flex-col items-end gap-1">
             <p className="text-sm">{user.username}</p>
-            {user.roles.includes(1) ? (
-              <Badge className="" variant={"outline"}>
-                نویسنده{" "}
-              </Badge>
-            ) : null}
+            <div className="flex gap-2">
+              {user.roles.includes(Role.writer) ? (
+                <Badge className="" variant={"outline"}>
+                  نویسنده
+                </Badge>
+              ) : null}
+              {user.roles.includes(Role.admin) ? (
+                <Badge className="" variant={"outline"}>
+                  مدیر
+                </Badge>
+              ) : null}
+              {user.roles.includes(Role.founder) ? (
+                <Badge className="" variant={"outline"}>
+                  بنیانگذار
+                </Badge>
+              ) : null}
+            </div>
           </div>
 
           <div className="avatar">

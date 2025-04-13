@@ -6,6 +6,8 @@ import { notFound } from "next/navigation";
 import { getReadTime } from "../../../lib/getReadTime";
 import { env } from "@/lib/public-env";
 import Image from "next/image";
+import PostCard from "@/components/post-card";
+import { Role } from "@/lib/types/role.type";
 
 export type Post = {
   _id: string;
@@ -38,6 +40,7 @@ export type Post = {
     updatedAt: string;
     __v: number;
   }>;
+  suggestedPosts: Post[];
 };
 
 export default async function Post({
@@ -79,11 +82,15 @@ export default async function Post({
                 {post.user.username}
               </p>
               <div className="flex gap-2">
-                {post.user.roles.includes(1) ? (
+                {post.user.roles.includes(Role.writer) ? (
                   <Badge variant={"secondary"}>نویسنده</Badge>
                 ) : null}
-                {/* <Badge variant={"secondary"}>ناظر</Badge> */}
-                {/* <Badge variant={"secondary"}>مدیر</Badge> */}
+                {post.user.roles.includes(Role.admin) ? (
+                  <Badge variant={"secondary"}>مدیر</Badge>
+                ) : null}
+                {post.user.roles.includes(Role.founder) ? (
+                  <Badge variant={"secondary"}>بنیانگذار</Badge>
+                ) : null}
               </div>
             </div>
 
@@ -100,7 +107,7 @@ export default async function Post({
           </div>
 
           {/* read time | statistics */}
-          <div className="flex flex-col items-end gap-2 bg-zinc-900 p-2 px-4 rounded-md w-full sm:w-fit">
+          <div className="flex flex-col items-end gap-2 bg-muted p-2 px-4 rounded-md w-full sm:w-fit">
             <div className="flex gap-2 justify-end items-center">
               <p className="opacity-75" dir="rtl">
                 {getReadTime(post.description)} دقیقه
@@ -197,16 +204,13 @@ export default async function Post({
         dangerouslySetInnerHTML={{ __html: post.description }}
       ></section>
 
-      {/* recommended */}
+      {/* suggested */}
       <section className="mt-2">
         <DividerPrimary title="مطالب پیشنهادی" />
         <div className="flex gap-4 flex-wrap px-4 pb-4">
-          {Array(4)
-            .fill(true)
-            .map((x) => (
-              // <PostCard />
-              <></>
-            ))}
+          {post.suggestedPosts.map((suggestedPost, i) => (
+            <PostCard post={suggestedPost} key={i} />
+          ))}
         </div>
       </section>
 

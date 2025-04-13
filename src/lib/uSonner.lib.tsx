@@ -3,7 +3,7 @@ import { toast } from "sonner";
 export default function uSonner(title: string, desc: string) {
   toast(title, {
     description: desc,
-    descriptionClassName: "text-xs opacity-50",
+    descriptionClassName: "text-xs",
     className: "text-right",
     style: {
       direction: "rtl",
