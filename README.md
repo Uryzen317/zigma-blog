@@ -48,12 +48,12 @@ To run the backend locally:
 
 3. Then, run the server:
 
-> ⚠️ **Note for production (CI/CD):**  
-> Ensure that the `.env` file is properly set up on your production environment with the necessary credentials and variables.
-
 ```bash
 npm run start:dev
 ```
+
+> ⚠️ **Note for production (CI/CD):**  
+> Ensure that the `.env` file is properly set up on your production environment with the necessary credentials and variables.
 
 ---
 
