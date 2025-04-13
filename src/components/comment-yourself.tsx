@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { ChangeEvent } from "react";
 import uSonner from "@/lib/uSonner.lib";
+import { env } from "@/lib/public-env";
 
 const useCommentYourself = create<UseCommentYourself>((set) => ({
   isLoading: false,
@@ -32,7 +33,7 @@ export default function CommentYourself({ postID }: CommentYourselfProps) {
 
     setIsLoading(true);
 
-    fetch("http://localhost:5000/comment", {
+    fetch(`${env.API}comment`, {
       headers: {
         "content-type": "application/json",
       },

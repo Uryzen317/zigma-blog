@@ -9,6 +9,7 @@ import uSonner from "@/lib/uSonner.lib";
 import { useEffect } from "react";
 import Navbar from "@/components/navbar";
 import PostCard from "@/components/post-card";
+import { env } from "@/lib/public-env";
 
 const useHome = create<UseHome>((set) => ({
   isLoading: true,
@@ -56,7 +57,7 @@ export default function Home() {
   ];
 
   useEffect(() => {
-    fetch("http://localhost:5000/get-home", {
+    fetch(`${env.API}get-home`, {
       method: "GET",
     })
       .then(async (res) => {
@@ -76,12 +77,13 @@ export default function Home() {
 
   return (
     <>
-      <section className=" flex justify-between">
-        {isLoading ? <NavbarSkeleton /> : <Navbar />}
+      <section className="flex justify-between">
+        <div className="hidden xl:block">
+          {isLoading ? <NavbarSkeleton /> : <Navbar />}
+        </div>
 
         {/* main page */}
-
-        <div className="pb-4 border-l border-dashed">
+        <div className="pb-4 border-l border-dashed grow">
           {isLoading ? (
             sections.map((section, i) => (
               <div key={i}>

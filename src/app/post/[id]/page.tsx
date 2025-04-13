@@ -1,16 +1,11 @@
 import Comment from "@/components/comment";
 import CommentYourself from "@/components/comment-yourself";
 import DividerPrimary from "@/components/divider-primary";
-import PostCard from "@/components/post-card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { notFound } from "next/navigation";
-
-const AvgReadSpeed = 200; // words per minute
-export function getReadTime(description: string): number {
-  return Math.ceil(description.split(" ").length / AvgReadSpeed);
-}
+import { getReadTime } from "../../../lib/getReadTime";
+import { env } from "@/lib/public-env";
+import Image from "next/image";
 
 export type Post = {
   _id: string;
@@ -45,10 +40,14 @@ export type Post = {
   }>;
 };
 
-export default async function Post({ params }: { params: { id: string } }) {
+export default async function Post({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
 
-  let res = await fetch("http://localhost:5000/get-post/" + id);
+  let res = await fetch(`${env.API}get-post/` + id);
 
   // not fount
   if (!res.ok) {
@@ -68,8 +67,8 @@ export default async function Post({ params }: { params: { id: string } }) {
   return (
     <>
       {/* picture | name | author | read time | statistics |  tags */}
-      <section className="border-y border-dashed p-4 flex gap-8 justify-between basis-1">
-        <div className="grow  h-12 flex flex-col gap-8 py-4 items-end">
+      <section className="border-y border-dashed p-4 flex flex-col-reverse lg:flex-row gap-8 justify-between basis-1">
+        <div className="grow lg:h-12 flex flex-col gap-8 lg:py-4 items-end">
           {/* name */}
           <h1 className="font-bold text-3xl">{post.title}</h1>
 
@@ -101,7 +100,7 @@ export default async function Post({ params }: { params: { id: string } }) {
           </div>
 
           {/* read time | statistics */}
-          <div className="flex flex-col items-end gap-2 bg-zinc-900 p-2 px-4 rounded-md">
+          <div className="flex flex-col items-end gap-2 bg-zinc-900 p-2 px-4 rounded-md w-full sm:w-fit">
             <div className="flex gap-2 justify-end items-center">
               <p className="opacity-75" dir="rtl">
                 {getReadTime(post.description)} دقیقه
@@ -180,7 +179,15 @@ export default async function Post({ params }: { params: { id: string } }) {
         </div>
 
         {/* picture */}
-        <div className="h-96 aspect-video bg-slate-600 shrink-0 basis-1 rounded-md shadow-md"></div>
+        <div className="h-96 aspect-video bg-muted shrink-0 basis-1 rounded-md shadow-md">
+          <Image
+            src={env.API + "cdn/" + post.picture}
+            alt={post.title}
+            width={1000}
+            height={800}
+            className="h-full aspect-video"
+          />
+        </div>
       </section>
 
       {/* text */}
@@ -206,9 +213,9 @@ export default async function Post({ params }: { params: { id: string } }) {
       {/* comments */}
       <section className="mt-3">
         <DividerPrimary title="نظرات" />
-        <div className="flex gap-4 -translate-y-7">
+        <div className="flex flex-col-reverse sm:flex-row gap-4 -translate-y-7">
           {/* comments */}
-          <div className="flex flex-col gap-4 grow pt-4 pl-4">
+          <div className="flex flex-col gap-4 grow pt-4 pl-4 pr-4 sm:pr-0">
             {post.comments.map((comment) => (
               <Comment
                 createdAt={comment.createdAt}

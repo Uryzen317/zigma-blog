@@ -1,7 +1,10 @@
-import { getReadTime, Post } from "@/app/post/[id]/page";
+import { Post } from "@/app/post/[id]/page";
+import { getReadTime } from "@/lib/getReadTime";
 import { Button } from "./ui/button";
 import { getCreationTime } from "./comment";
 import Link from "next/link";
+import Image from "next/image";
+import { env } from "@/lib/public-env";
 
 type PostCartProps = {
   post: Post;
@@ -9,9 +12,9 @@ type PostCartProps = {
 
 export default function PostCard({ post }: PostCartProps) {
   return (
-    <div className="border flex h-36 rounded-md overflow-hidden shadow-md grow bg-card">
+    <div className="border flex flex-col-reverse sm:flex-row sm:h-36 h-72 rounded-md overflow-hidden shadow-md grow bg-card">
       {/* details */}
-      <div className="grow p-4 flex flex-col h-full justify-between">
+      <div className="sm:grow p-4 flex flex-col h-36 sm:h-full justify-between">
         {/* title */}
         <p className="text-justify font-bold line-clamp-1" dir="rtl">
           {post.title}
@@ -69,7 +72,15 @@ export default function PostCard({ post }: PostCartProps) {
       </div>
 
       {/* image */}
-      <div className="bg-gray-500 h-full aspect-video"></div>
+      <div className="bg-muted h-36 sm:h-full aspect-video overflow-hidden">
+        <Image
+          src={env.API + "cdn/" + post.picture}
+          alt={post.title}
+          width={400}
+          height={300}
+          className="h-full aspect-video"
+        />
+      </div>
     </div>
   );
 }

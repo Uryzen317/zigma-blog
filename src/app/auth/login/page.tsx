@@ -2,12 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
-import { GalleryVerticalEnd } from "lucide-react";
+import { Book, GalleryVerticalEnd } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { create } from "zustand";
 import { ChangeEvent } from "react";
 import uSonner from "@/lib/uSonner.lib";
 import { CardDescription } from "@/components/ui/card";
+import { env } from "@/lib/public-env";
+import { useRouter } from "next/navigation";
 
 const useLogin = create<UseLogin>((set) => ({
   isLoading: false,
@@ -48,6 +50,8 @@ export default function Login() {
     setInputError,
   } = useLogin();
 
+  const router = useRouter();
+
   const checkRegex = /^[A-Za-z0-9_]{8,64}$/;
 
   function login(e: any) {
@@ -68,21 +72,25 @@ export default function Login() {
     setInputError(null);
     setIsLoading(true);
 
-    fetch("http://localhost:5000/login", {
+    fetch(`${env.API}login`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
       },
       body: JSON.stringify({ username, password }),
       credentials: "include",
-    })
-      .then(async (value) => {
-        if (value.ok) return uSonner("موفقیت", "منقل میشوید ...");
+    }).then(async (value) => {
+      if (value.ok) {
+        setTimeout(() => {
+          router.push("/");
+        }, 3000);
+        return uSonner("موفقیت", "منقل میشوید ...");
+      }
 
-        // error
-        uSonner("خطا", (await value.json()).message);
-      })
-      .finally(() => setIsLoading(false));
+      // error
+      uSonner("خطا", (await value.json()).message);
+      setIsLoading(false);
+    });
   }
 
   return (
@@ -98,11 +106,12 @@ export default function Login() {
               className="flex flex-col items-center gap-2 font-medium"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-md">
-                <GalleryVerticalEnd className="size-6" />
+                <Book className="size-6" />
               </div>
-              <span className="sr-only">Acme Inc.</span>
+              <span className="sr-only">Darmanyar blog .</span>
             </a>
-            <h1 className="text-xl font-bold">به این وبلاگ خوش آمدید</h1>
+
+            <h1 className="text-xl font-bold">به بلاگ درمانیار خوش آمدید</h1>
             <div className="text-center text-sm">
               حساب کاربری ندارید ؟{" "}
               <a href="/auth/signup" className="underline underline-offset-4">

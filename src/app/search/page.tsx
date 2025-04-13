@@ -7,6 +7,7 @@ import { Post } from "../post/[id]/page";
 import { useEffect } from "react";
 import { create } from "zustand";
 import PostCardSkeleton from "@/components/post-card-skeleton";
+import { env } from "@/lib/public-env";
 
 const useSearch = create<UseSearch>((set) => ({
   isLoading: true,
@@ -23,16 +24,16 @@ type UseSearch = {
 };
 
 export default function Search() {
-  const searchString = window.location.search;
-
-  if (!searchString.includes("?query=")) return notFound();
-  const query = searchString.split("?query=")?.at(1);
-  if (!query) return notFound();
-
   const { isLoading, posts, setIsloading, setPosts } = useSearch();
 
   useEffect(() => {
-    fetch(`http://localhost:5000/search?query=${query}`).then(async (res) => {
+    const searchString = window.location.search;
+
+    if (!searchString.includes("?query=")) return notFound();
+    const query = searchString.split("?query=")?.at(1);
+    if (!query) return notFound();
+
+    fetch(`${env.API}search?query=${query}`).then(async (res) => {
       if (res.ok) {
         setIsloading(false);
         setPosts(await res.json());

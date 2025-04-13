@@ -2,12 +2,14 @@
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@radix-ui/react-label";
-import { GalleryVerticalEnd } from "lucide-react";
+import { Book, GalleryVerticalEnd } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { create } from "zustand";
 import { ChangeEvent } from "react";
 import uSonner from "@/lib/uSonner.lib";
 import { CardDescription } from "@/components/ui/card";
+import { env } from "@/lib/public-env";
+import { useRouter } from "next/navigation";
 
 const useSignup = create<UseSignup>((set) => ({
   isLoading: false,
@@ -56,6 +58,8 @@ export default function Signup() {
 
   const checkRegex = /^[A-Za-z0-9_]{8,64}$/;
 
+  const router = useRouter();
+
   async function signup(e: any) {
     e.preventDefault();
 
@@ -80,20 +84,24 @@ export default function Signup() {
     setInputError(null);
     setIsLoading(true);
 
-    await fetch("http://localhost:5000/signup", {
+    await fetch(`${env.API}signup`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
       },
       body: JSON.stringify({ username, password }),
-    })
-      .then(async (value) => {
-        if (value.ok) return uSonner("موفقیت", "منقل میشوید ...");
+    }).then(async (value) => {
+      if (value.ok) {
+        setTimeout(() => {
+          router.push("/");
+        }, 3000);
+        return uSonner("موفقیت", "منقل میشوید ...");
+      }
 
-        // error
-        uSonner("خطا", (await value.json()).message);
-      })
-      .finally(() => setIsLoading(false));
+      // error
+      uSonner("خطا", (await value.json()).message);
+      setIsLoading(false);
+    });
   }
 
   return (
@@ -109,11 +117,12 @@ export default function Signup() {
               className="flex flex-col items-center gap-2 font-medium"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-md">
-                <GalleryVerticalEnd className="size-6" />
+                <Book className="size-6" />
               </div>
-              <span className="sr-only">Acme Inc.</span>
+              <span className="sr-only">Darmanyar blog .</span>
             </a>
-            <h1 className="text-xl font-bold">به این وبلاگ خوش آمدید</h1>
+
+            <h1 className="text-xl font-bold">به بلاگ درمانیار خوش آمدید</h1>
             <div className="text-center text-sm">
               قبلا حساب کاربری ساخته اید ؟{" "}
               <a href="/auth/login" className="underline underline-offset-4">

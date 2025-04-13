@@ -6,23 +6,28 @@
     "start:dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "node ./deploy.js"
   },
   "dependencies": {
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.2",
     "class-variance-authority": "^0.7.1",
+    "cli-progress": "^3.12.0",
     "clsx": "^2.1.1",
+    "dotenv": "^16.5.0",
     "jalali-moment": "^3.3.11",
     "lucide-react": "^0.476.0",
     "next": "15.0.1",
     "next-themes": "^0.4.6",
+    "node-ssh": "^13.2.1",
     "react": "19.0.0-rc-69d4b800-20241021",
     "react-dom": "19.0.0-rc-69d4b800-20241021",
     "react-simple-wysiwyg": "^3.2.1",
     "sonner": "^2.0.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
+    "util": "^0.12.5",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

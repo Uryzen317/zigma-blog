@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { env } from "@/lib/public-env";
 import uSonner from "@/lib/uSonner.lib";
 import { ChangeEvent, ChangeEventHandler, useState } from "react";
 import Editor from "react-simple-wysiwyg";
@@ -60,7 +61,7 @@ export default function CreatePost() {
     formData.append("description", desc);
     formData.append("tags", tags);
 
-    fetch("http://localhost:5000/create-post", {
+    fetch(`${env.API}create-post`, {
       cache: "no-cache",
       method: "POST",
       body: formData,
@@ -72,6 +73,8 @@ export default function CreatePost() {
             "با موفقیت ساخته شد",
             "پست مورد نظر با موفقیت ساخته شد"
           );
+
+        uSonner("خطا", "خطایی رخ داد");
       })
       .finally(() => {
         setIsLoading(false);
