@@ -1,0 +1,41 @@
+- name: "Prepare local files"
+  hosts: localhost
+
+  vars_files:
+    - ../vars/server-vars.yaml
+
+  tasks:
+    - name: "Get final build"
+      command: npm run build
+      args:
+        chdir: "{{ local_project_path }}"
+
+    - name: "Compress files"
+      command: "rar a zigma.rar ./dist ./package.json ./package-lock.json"
+      args:
+        chdir: "{{ local_project_path }}"
+
+- name: "Deploy on remote"
+  hosts: zigma
+
+  vars_files:
+    - ../vars/server-vars.yaml
+
+  tasks:
+    - name: "Upload files to server"
+      copy:
+        src: "{{ local_rar_file }}"
+        dest: "{{ remote_rar_file }}"
+
+    - name: "Extract files"
+      command: "unrar x ./zigma.rar -o+"
+      args:
+        chdir: "{{ remote_project_path }}"
+
+    - name: "Install dependencies"
+      npm:
+        path: "{{ remote_project_path }}"
+        state: present
+
+    - name: "Restart project"
+      command: "pm2 restart {{ project_name }}"
