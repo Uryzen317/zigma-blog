@@ -1,11 +1,36 @@
 # 📝 Zigma Blog (a.k.a. Darmannyar)
 
-A full-stack, open source blogging platform built with **Next.js**, **Zustand**, and **NestJS**.
+> A clean, powerful, and customizable open-source blog platform — built with performance and developer happiness in mind.
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Ansible-Automated-blue?logo=ansible&style=flat-square" alt="Ansible">
+  <img src="https://img.shields.io/badge/CI%2FCD-Custom%20via%20Ansible-yellow?style=flat-square">
+  <img src="https://img.shields.io/badge/Node.js-18.x-brightgreen?logo=node.js&style=flat-square">
+  <img src="https://img.shields.io/badge/Version-v1.0.0-blue?style=flat-square">
+  <img src="https://img.shields.io/github/last-commit/Uryzen317/zigma-blog?style=flat-square">
+</p>
+
+---
 
 📍 **Live site**: [darmannyar.com](https://darmannyar.com)  
 📦 **Repository**: [github.com/Uryzen317/zigma-blog](https://github.com/Uryzen317/zigma-blog)
 
 > 📝 The project was originally developed under the name **Zigma Blog**, but launched under the final name [**Darmannyar**](https://darmannyar.com) during the final stages.
+
+---
+
+## 🛠 Tech Stack
+
+Zigma Blog is crafted with love using the following technologies:
+
+| Category        | Stack                                                                 |
+|----------------|-----------------------------------------------------------------------|
+| 🌐 Frontend     | [Next.js](https://nextjs.org/), [Zustand](https://github.com/pmndrs/zustand), [React](https://reactjs.org/), TypeScript |
+| 🎨 Styling      | Tailwind CSS                                                        |
+| 🔧 Backend      | [NestJS](https://nestjs.com/), Node.js                               |
+| 🗃 Database     | MongoDB, Redis                                                       |
+| 🔄 CI/CD        | [Ansible](https://www.ansible.com/)                                  |
+| 🛡 Auth          | Custom Cookie-Based auth                                            |
 
 ---
 
