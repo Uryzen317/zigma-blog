@@ -57,6 +57,46 @@ npm run start:dev
 
 ---
 
+### 🔧 Deployment Automation with Ansible
+
+This project supports automated deployment using [Ansible](https://www.ansible.com/).  
+All related configurations and playbooks are located in the [`ansible` branch](https://github.com/Uryzen317/zigma-blog/tree/ansible).
+
+### 🚀 Quickstart Guide
+
+1. **Switch to the Ansible branch**:
+    ```bash
+    git checkout ansible
+    ```
+
+2. **Configure your inventory**:
+    - Copy the example file:
+      ```bash
+      cp inventory.ini.example inventory.ini
+      ```
+    - Edit `inventory.ini` with your server's IP/hostname and SSH config.  
+      ⚠️ *Do not commit this file – it's already listed in `.gitignore`.*
+
+3. **Update variable files**:
+    - Open the files in the `vars/` directory and customize them for your environment (e.g., service names, deployment paths, or other settings).
+
+4. **Run the playbook**:
+    ```bash
+    ansible-playbook -i inventory.ini playbooks/deploy.yml
+    ```
+
+---
+
+This will:
+- Build the app on your local machine
+- Upload production files to your server
+- Install dependencies
+- Restart the service
+
+> Everything with one command, under your full control.
+
+---
+
 ## 📸 Screenshots
 
 ### 🏠 Homepage
