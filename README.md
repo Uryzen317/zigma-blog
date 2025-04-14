@@ -57,7 +57,7 @@ npm run start:dev
 
 ---
 
-### 🔧 Deployment Automation with Ansible
+## 🔧 Deployment Automation with Ansible
 
 This project supports automated deployment using [Ansible](https://www.ansible.com/).  
 All related configurations and playbooks are located in the [`ansible` branch](https://github.com/Uryzen317/zigma-blog/tree/ansible).
